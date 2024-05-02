@@ -2,9 +2,12 @@
 import {onUnmounted, ref} from "vue";
 import { useVirtualList} from '@vueuse/core'
 
+const rowsCount = ref(Math.floor(Math.random() * 9000 + 100))
+const cellsInRow = ref(Math.floor(Math.random() * 10 + 10))
+
 const data = ref(Array
-    .from(Array(110).keys(),
-        () => Array.from(Array(11).keys(),
+    .from(Array(rowsCount.value).keys(),
+        () => Array.from(Array(cellsInRow.value).keys(),
             () => Math.floor(Math.random() * 100))))
 
 const {list, containerProps, wrapperProps} = useVirtualList(data, {
@@ -23,6 +26,10 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <div class="info-banner">
+      <span>rowsCount: {{rowsCount}}</span>
+      <span>cellsInRow: {{cellsInRow}}</span>
+  </div>
 
   <div v-bind="containerProps" class="scrollContainer">
     <div v-bind="wrapperProps" class="wrapperContainer" >
@@ -36,6 +43,20 @@ onUnmounted(() => {
 </template>
 
 <style>
+
+.info-banner {
+  border-radius: var(--border-radius);
+  position: fixed;
+  z-index: 100;
+  left: var(--space-10);
+  top: var(--space-10);
+  background: #213547;
+  color: white;
+  padding: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
 
 .scrollContainer {
   height: calc(100vh - 4rem);
