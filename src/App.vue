@@ -1,11 +1,12 @@
 <script setup>
-import {onUnmounted, ref} from "vue";
+import {onUnmounted, ref, shallowRef} from "vue";
 import { useVirtualList} from '@vueuse/core'
 
-const rowsCount = ref(Math.floor(Math.random() * 9000 + 100))
-const cellsInRow = ref(Math.floor(Math.random() * 10 + 10))
+const isVirtualListShow = ref(true);
+const rowsCount = shallowRef(Math.floor(Math.random() * 9000 + 100))
+const cellsInRow = shallowRef(Math.floor(Math.random() * 10 + 10))
 
-const data = ref(Array
+const data = shallowRef(Array
     .from(Array(rowsCount.value).keys(),
         () => Array.from(Array(cellsInRow.value).keys(),
             () => Math.floor(Math.random() * 100))))
@@ -16,27 +17,41 @@ const {list, containerProps, wrapperProps} = useVirtualList(data, {
 
 const interval = setInterval(() => {
   list.value.forEach((item) => {
-    item.data.splice(Math.floor(Math.random() * item.data.length), 1, Math.floor(Math.random() * 100))
+    item.data.splice(Math.floor(Math.random() * item.data.length), 1, setRandomValue())
   })
 }, 1000)
 
 onUnmounted(() => {
   clearInterval(interval)
 })
+
+function setRandomValue() {
+  return Math.floor(Math.random() * 100)
+}
 </script>
 
 <template>
   <div class="info-banner">
       <span>rowsCount: {{rowsCount}}</span>
       <span>cellsInRow: {{cellsInRow}}</span>
+
+    <button @click="isVirtualListShow = !isVirtualListShow">Toggle virtualList</button>
   </div>
 
-  <div v-bind="containerProps" class="scrollContainer">
+  <div v-bind="containerProps" class="scrollContainer" v-if="isVirtualListShow">
     <div v-bind="wrapperProps" class="wrapperContainer" >
       <div class="row" v-for="{index, data} in list" :key="index">
         <div class="cells-wrapper">
-          <div class="cell" v-for="(value, index) in data" :key="index">{{value}}</div>
+          <div class="cell" v-for="(value, index) in data" :key="index" @click="data[index] = setRandomValue()">{{value}}</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div v-else>
+    <div class="row" v-for="(item, index) in data" :key="index">
+      <div class="cells-wrapper">
+        <div class="cell" v-for="(value, index) in item" :key="index">{{value}}</div>
       </div>
     </div>
   </div>
